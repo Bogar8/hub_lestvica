@@ -1,22 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>FACEIT Leaderboard</title>
   <style>
     /* (Same CSS from before, shortened here for clarity) */
-    body { background-color: #0f1115; color: white; font-family: sans-serif; }
-    table { width: auto; max-width: 1000px; border-collapse: collapse; background-color: #1a1c22; }
-    th, td { padding-right: 12px; text-align: center; }
-    th { background-color: #23252b; color: #f48c06; }
-    tr:hover { background-color: #2b2e36; }
-    .player-info { display: flex; align-items: center; gap: 10px; }
-    .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-    .gold-row { background-color: #ffd70022; }
-    .silver-row { background-color: #c0c0c022; }
-    .bronze-row { background-color: #cd7f3222; }
+    body {
+      background-color: #0f1115;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    table {
+      width: auto;
+      max-width: 1000px;
+      border-collapse: collapse;
+      background-color: #1a1c22;
+    }
+
+    th,
+    td {
+      padding-right: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #23252b;
+      color: #f48c06;
+    }
+
+    tr:hover {
+      background-color: #2b2e36;
+    }
+
+    .player-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .gold-row {
+      background-color: #ffd70022;
+    }
+
+    .silver-row {
+      background-color: #c0c0c022;
+    }
+
+    .bronze-row {
+      background-color: #cd7f3222;
+    }
   </style>
 </head>
+
 <body>
   <!--<h1>SLOHUB Leaderboard</h1>-->
 
@@ -38,25 +82,27 @@
 
   <script>
     async function loadLeaderboard() {
-     
-const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent("https://www.faceit.com/api/leaderboard/v2/ranking/69a3f21372cd0e2bf5b146f4?limit=8&offset=0&size=true");
 
-fetch(proxyUrl)
-  .then(res => res.json())
-  .then(data => {
-    console.log("Leaderboard data:", data);
-	
-        const tbody = document.getElementById('leaderboard-body');
-        tbody.innerHTML = '';
-		
-        data.payload.rankings.forEach((player, index) => {
-          const {
-            nickname,
-            faceit_elo,
-            avatar,
-            game_player_name,
-            stats
-          } = player;
+      const leaderboardId = "69a3f21372cd0e2bf5b146f4";
+      const numOfPlayers = 8;
+      const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(`https://www.faceit.com/api/leaderboard/v2/ranking/${leaderboardId}?limit=${numOfPlayers}&offset=0&size=true`);
+
+      fetch(proxyUrl)
+        .then(res => res.json())
+        .then(data => {
+          console.log("Leaderboard data:", data);
+
+          const tbody = document.getElementById('leaderboard-body');
+          tbody.innerHTML = '';
+
+          data.payload.rankings.forEach((player, index) => {
+            const {
+              nickname,
+              faceit_elo,
+              avatar,
+              game_player_name,
+              stats
+            } = player;
 
             const playerName = player.placement.entity_name;
             const playerPoints = player.points;
@@ -66,24 +112,24 @@ fetch(proxyUrl)
             const playerPosition = player.position;
             const playerWinStreak = player.current_streak;
             const playerLoseStreak = player.current_losing_streakđ;
-			if(!playerAvatar){
-			playerAvatar = "https://distribution.faceit-cdn.net/images/e75c15b8-b7b2-4780-9c04-6a9c11c8a199.jpeg" 
-			}
+            if (!playerAvatar) {
+              playerAvatar = "https://distribution.faceit-cdn.net/images/e75c15b8-b7b2-4780-9c04-6a9c11c8a199.jpeg"
+            }
 
 
-          const row = document.createElement('tr');
+            const row = document.createElement('tr');
 
-          // Style row for top 3
-          if (playerPosition === 1) row.classList.add('gold-row');
-          if (playerPosition === 2) row.classList.add('silver-row');
-          if (playerPosition === 3) row.classList.add('bronze-row');
+            // Style row for top 3
+            if (playerPosition === 1) row.classList.add('gold-row');
+            if (playerPosition === 2) row.classList.add('silver-row');
+            if (playerPosition === 3) row.classList.add('bronze-row');
 
-          // Determine badge emoji
-          const badges = ['🥇', '🥈', '🥉'];
-          const badge = badges[playerPosition-1] || '';
+            // Determine badge emoji
+            const badges = ['🥇', '🥈', '🥉'];
+            const badge = badges[playerPosition - 1] || '';
 
-          const placement = badge? `<td>${badge}</td>` : `<td>${badge} ${playerPosition}</td>` ;
-          const name = `
+            const placement = badge ? `<td>${badge}</td>` : `<td>${badge} ${playerPosition}</td>`;
+            const name = `
             <td>
               <div class="player-info">
                 <img src="${playerAvatar}" class="avatar" />
@@ -91,26 +137,27 @@ fetch(proxyUrl)
               </div>
             </td>
           `;
-          const points = `<td>${playerPoints}</td>`;
-          const matches = `<td>${playerMatches}</td>`;
+            const points = `<td>${playerPoints}</td>`;
+            const matches = `<td>${playerMatches}</td>`;
 
-          const winRate = `${Math.round(playerWinrate)}%`;
-          const winRateHTML = `<td>${winRate}</td>`;
+            const winRate = `${Math.round(playerWinrate)}%`;
+            const winRateHTML = `<td>${winRate}</td>`;
 
-          // Parse current streak
-          const streakText = playerWinStreak > 0 ? `${playerWinStreak}🔥` : playerLoseStreak > 0 ? `${Math.abs(playerLoseStreak)}❌` : '—';
-          const streakHTML = `<td>${streakText}</td>`;
+            // Parse current streak
+            const streakText = playerWinStreak > 0 ? `${playerWinStreak}🔥` : playerLoseStreak > 0 ? `${Math.abs(playerLoseStreak)}❌` : '—';
+            const streakHTML = `<td>${streakText}</td>`;
 
-          row.innerHTML = placement + name + points + matches + winRateHTML + streakHTML;
-          tbody.appendChild(row);
-        });
-  })
-  .catch(err => console.error("CORS error:", err));
+            row.innerHTML = placement + name + points + matches + winRateHTML + streakHTML;
+            tbody.appendChild(row);
+          });
+        })
+        .catch(err => console.error("CORS error:", err));
     }
     loadLeaderboard();
-    setInterval(function() {
-        loadLeaderboard();
-}, 60 * 1000);
- </script>
+    setInterval(function () {
+      loadLeaderboard();
+    }, 60 * 1000);
+  </script>
 </body>
+
 </html>
